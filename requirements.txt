@@ -1,0 +1,7 @@
+FastAPI
+Jinja2
+uvicorn
+python-dotenv
+sqlalchemy
+python-multipart
+requests
