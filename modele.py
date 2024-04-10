@@ -42,12 +42,12 @@ class Facture(Base):
         return f"FACTURE [{this.no}] {this.total}€"
     def __init__(self, billno):
         self.a = billno
-    def read_file(a):
-        with open(f"statics/{a}.png.txt",'r') as file:
+    def read_file(self):
+        with open(f"statics/{self.a}.png.txt",'r') as file:
             contenus = file.read()
             mot1=contenus.split()
             print(contenus)
-        with open(f"statics/{a}.pngqr.txt",'r') as file:
+        with open(f"statics/{self.a}.pngqr.txt",'r') as file:
             contenus = file.read()
             mot1=contenus.split()
             print(mot1)
