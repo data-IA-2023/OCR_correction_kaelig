@@ -34,7 +34,7 @@ class Facture(Base):
     client_id = mapped_column(ForeignKey("clients.id"))
     # 'client' permet d'accéder au client lié à la facture
     client = relationship("Client", back_populates="factures")
-    commande = relationship("Commande", back_populates="factures")
+    commande = relationship("Commande", back_populates="fact")
 
     # Et les commandes ???
 
@@ -49,19 +49,14 @@ class Commande(Base):
     qty = Column(Integer)
 
 
-    fact = relationship("Facture", back_populates="factures")
-    produit = relationship("Produit", back_populates="commandes")
+    fact = relationship("Facture", back_populates="commande")
+    produits = relationship("Produit", back_populates="comm")
     
 class Produit(Base):
     __tablename__ = 'produits'
     name =  Column(String(255),primary_key=True)
     price = Column(Integer)
     comm = relationship("Commande", back_populates="produits")
-
-
-
-
-
 
 
 
