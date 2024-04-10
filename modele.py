@@ -2,6 +2,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Float, Dat
 from sqlalchemy.orm import relationship, sessionmaker, Session, mapped_column, declarative_base
 from sqlalchemy import create_engine
 import os, dotenv, requests, datetime, json, math, subprocess, re, glob, urllib, pyodbc
+from datetime import datetime
 
 dotenv.load_dotenv()
 BDD_URL=os.getenv('DATABASE_URL')
@@ -40,17 +41,34 @@ class Facture(Base):
 
     def __str__(this):
         return f"FACTURE [{this.no}] {this.total}€"
-    def __init__(self, billno):
-        self.a = billno
-    def read_file(self):
-        with open(f"statics/{self.a}.png.txt",'r') as file:
-            contenus = file.read()
-            mot1=contenus.split()
-            print(contenus)
-        with open(f"statics/{self.a}.pngqr.txt",'r') as file:
-            contenus = file.read()
-            mot1=contenus.split()
-            print(mot1)
+    
+    @staticmethod
+    def read_file(no):
+         with Session(engine) as session:
+            query = select(Facture).where(Facture.no==no)
+            res = session.execute(query).scalar()
+            if not res:
+                with open(f"statics/{no}.png.txt",'r') as file:
+                    for line in file:
+                        if line.startswith('TOTAL'):
+                            tot=line.split()
+                            total=tot[1]
+
+                with open(f"statics/{no}.pngqr.txt",'r') as file:
+                    for line in file:
+                        if line.startswith('DATE'):
+                            date_mid=line.split(':',1)
+                            date=datetime.strptime(date_mid[1].replace('\n',''), "%Y-%m-%d %H:%M:%S")
+                        if line.startswith('CUST'):
+                            id=line.split(':',1)[1].replace('\n','')
+                            id=int(id)
+
+                fac=Facture(no=no, total=total,dt=date,client_id=id)
+                session.add(fac)
+                session.commit()
+            return fac
+
+
     
 class Commande(Base):
     __tablename__='commandes'
@@ -69,8 +87,6 @@ class Produit(Base):
     price = Column(Integer)
     comm = relationship("Commande", back_populates="produits")
 
-fac=Facture('FAC_2019_0001-112650')
+Base.metadata.create_all(bind=engine)
+Facture.read_file('FAC_2019_0001-112650')
 
-fac.read_file
-
-#Base.metadata.create_all(bind=engine)
