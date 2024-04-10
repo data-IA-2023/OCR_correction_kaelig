@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Float, Date, select, update, delete
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Float, Date, select, update, delete, ForeignKeyConstraint
 from sqlalchemy.orm import relationship, sessionmaker, Session, mapped_column, declarative_base
 from sqlalchemy import create_engine
 import os, dotenv, requests, datetime, json, math, subprocess, re, glob, urllib, pyodbc
@@ -34,11 +34,33 @@ class Facture(Base):
     client_id = mapped_column(ForeignKey("clients.id"))
     # 'client' permet d'accéder au client lié à la facture
     client = relationship("Client", back_populates="factures")
+    commande = relationship("Commande", back_populates="factures")
 
     # Et les commandes ???
 
     def __str__(this):
         return f"FACTURE [{this.no}] {this.total}€"
+    
+class Commande(Base):
+    __tablename__='commandes'
+    facture_no = Column(String(255),ForeignKey("factures.no"),primary_key=True)
+    produit_name = Column(String(255),ForeignKey("produits.name"),primary_key=True)
+    no = Column(Integer)
+    qty = Column(Integer)
+
+
+    fact = relationship("Facture", back_populates="factures")
+    produit = relationship("Produit", back_populates="commandes")
+    
+class Produit(Base):
+    __tablename__ = 'produits'
+    name =  Column(String(255),primary_key=True)
+    price = Column(Integer)
+    comm = relationship("Commande", back_populates="produits")
+
+
+
+
 
 
 
