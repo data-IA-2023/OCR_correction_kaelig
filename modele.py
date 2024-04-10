@@ -27,7 +27,7 @@ class Client(Base):
 
 class Facture(Base):
     __tablename__ = 'factures'
-    no = Column(String, primary_key=True)
+    no = Column(String(255), primary_key=True)
     dt = Column(DateTime)
     total = Column(Float)
     # client_id est la FK
