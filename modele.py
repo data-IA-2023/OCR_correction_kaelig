@@ -52,8 +52,7 @@ class Facture(Base):
                     for line in file:
                         if line.startswith('TOTAL'):
                             tot=line.split()
-                            total=tot[1]
-
+                            total=tot[1].replace('\n','')
                 with open(f"statics/{no}.pngqr.txt",'r') as file:
                     for line in file:
                         if line.startswith('DATE'):
@@ -62,10 +61,12 @@ class Facture(Base):
                         if line.startswith('CUST'):
                             id=line.split(':',1)[1].replace('\n','')
                             id=int(id)
-
                 fac=Facture(no=no, total=total,dt=date,client_id=id)
                 session.add(fac)
                 session.commit()
+                session.refresh()
+            else:
+                fac=None
             return fac
 
 
@@ -88,5 +89,5 @@ class Produit(Base):
     comm = relationship("Commande", back_populates="produits")
 
 Base.metadata.create_all(bind=engine)
-Facture.read_file('FAC_2019_0001-112650')
+print(Facture.read_file('FAC_2019_0001-112650'))
 
