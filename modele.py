@@ -40,6 +40,17 @@ class Facture(Base):
 
     def __str__(this):
         return f"FACTURE [{this.no}] {this.total}€"
+    def __init__(self, billno):
+        self.a = billno
+    def read_file(a):
+        with open(f"statics/{a}.png.txt",'r') as file:
+            contenus = file.read()
+            mot1=contenus.split()
+            print(contenus)
+        with open(f"statics/{a}.pngqr.txt",'r') as file:
+            contenus = file.read()
+            mot1=contenus.split()
+            print(mot1)
     
 class Commande(Base):
     __tablename__='commandes'
@@ -58,6 +69,8 @@ class Produit(Base):
     price = Column(Integer)
     comm = relationship("Commande", back_populates="produits")
 
+fac=Facture('FAC_2019_0001-112650')
 
+fac.read_file
 
-Base.metadata.create_all(bind=engine)
+#Base.metadata.create_all(bind=engine)
