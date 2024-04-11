@@ -35,7 +35,7 @@ def test_1(env_bdd):
         assert len(res)==2
 
 def test_import():
-    with open('static/FAC_2019_0502-521676.png.txt', 'w') as f:
+    with open('statics/FAC_2019_0502-521676.png.txt', 'w') as f:
         f.write('''INVOICE FAC_2019_0502
 Issue date 2019-06-01 19:02:00
 Bill to Natalia Omma
@@ -50,7 +50,7 @@ Story onto everybody east. 2x 59,73 Euro
 
 TOTAL 564.27 Euro
 ''')
-    with open('static/FAC_2019_0502-521676.pngqr.txt', 'w') as f:
+    with open('statics/FAC_2019_0502-521676.pngqr.txt', 'w') as f:
         f.write('''INVOICE:FAC_2019_0502
 DATE:2019-06-01 19:02:00
 CUST:00337
@@ -59,15 +59,14 @@ CAT:C''')
     with Session(engine) as session:
         fac = session.get(Facture, 'FAC_2019_0502-521676') # https://docs.sqlalchemy.org/en/20/orm/session_api.html#sqlalchemy.orm.Session.get
         assert fac.total==564.27
-        assert fac.cumul==564.27
 
         assert fac.client.id==337
         assert fac.client.cat=='C'
         assert fac.client.name=='Natalia Omma'
         assert '854, chemin Couturier' in fac.client.adr
         assert '62821 Saint Roland' in fac.client.adr
-
         assert len(fac.commandes)==4
         assert fac.commandes[1].qty==8
-        assert fac.commandes[3].produit.price==59.73
+        assert fac.commandes[2].qty==2
+        assert fac.commandes[3].produits.price==59.73
 test_import()

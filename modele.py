@@ -38,6 +38,8 @@ class Facture(Base):
     client = relationship("Client", back_populates="factures")
     commande = relationship("Commande", back_populates="fact")
 
+    commandes = relationship("Commande", order_by="Commande.no", cascade="delete")
+
     def __str__(this):
         return f"no: [{this.no}] dt:{this.dt} total:({this.total} client_id:{this.client_id})"
     
@@ -66,9 +68,12 @@ class Facture(Base):
                                 pass
                             else:
                                 try:
-                                    price=(prqtt.split('x',1)[1]).split()[0]
+                                    price=(prqtt.split('x',1)[1]).rsplit()[-2].replace(',','.')
                                     prod[line.split('.',1)[0]].append(price)
                                     quantité=prqtt.split('x',1)[0]
+                                    quantité=quantité.replace(' ','')
+                                    if quantité=='B': 
+                                        quantité='8'                                   
                                     prod[line.split('.',1)[0]].append(quantité)
                                 except:
                                     pass
@@ -117,7 +122,7 @@ class Facture(Base):
                     if not res3:
                         quantity= re.findall(r'\d+',value[1])
                         quantity = ''.join(quantity)
-                        comm=Commande(facture_no=no,produit_name=key,no=k+1,qty=int(quantity))
+                        comm=Commande(facture_no=no,produit_name=key,no=k+1,qty=quantity)
                         session.add(comm)
                         session.commit()
 
@@ -146,5 +151,16 @@ class Produit(Base):
 
 Base.metadata.create_all(bind=engine)
 
+if __name__=="__main__":
+
+    fns=glob.glob('statics/*.txt')
+    fns=[fn[7:-10] for fn in fns if '.pngqr.txt' in fn]
+
+
+    for no in fns[:10000]:
+        fac = Facture.read_file(no) 
+
+    with Session(engine) as session:
+        query = session.query(Facture).count()
 
 
