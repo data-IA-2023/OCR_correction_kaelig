@@ -54,6 +54,7 @@ class Facture(Base):
                 test3=None
                 ad,nom,cat,id=None,None,None,None
                 with open(f"statics/{no}.png.txt",'r') as file:
+                    decoup=[]
                     prod={}
                     for i,line in enumerate(file):
                         if line.startswith('TOTAL'):
@@ -62,19 +63,24 @@ class Facture(Base):
                             total=total.replace(',','.')
                         if 'Euro' in line and 'TOTAL' not in line:
                             try :
-                                prod[line.split('.',1)[0]]=[]
-                                prqtt=line.split('.',1)[1]
+                                if line.count('.') == 2:
+                                    decoup=line.split('.',1)
+                                else:
+                                    decoup.append(' '.join(line.split('',4)[:3]))
+                                    decoup.append(line.split('',4)[-1])
+                                prod[decoup[0]]=[]
+                                prqtt=decoup[1]
                             except:
                                 pass
                             else:
                                 try:
                                     price=(prqtt.split('x',1)[1]).rsplit()[-2].replace(',','.')
-                                    prod[line.split('.',1)[0]].append(price)
+                                    prod[decoup[0]].append(price)
                                     quantité=prqtt.split('x',1)[0]
                                     quantité=quantité.replace(' ','')
                                     if quantité=='B': 
                                         quantité='8'                                   
-                                    prod[line.split('.',1)[0]].append(quantité)
+                                    prod[decoup[0]].append(quantité)
                                 except:
                                     pass
                         if 'ddress' in line and not test2:
@@ -107,7 +113,6 @@ class Facture(Base):
                 fac=Facture(no=no, total=total,dt=date,client_id=id)
                 session.add(fac)
                 session.commit()
-
                 for key,value in prod.items():
                     query = select(Produit).where(Produit.name==key)
                     res2 = session.execute(query).scalar()
@@ -115,13 +120,21 @@ class Facture(Base):
                         produit=Produit(name=key,price=value[0])
                         session.add(produit)
                         session.commit()
-
+                fusion={}
                 for k,(key,value) in enumerate(prod.items()):
+                    quantity= re.findall(r'\d+',value[1])
+                    valeur = ''.join(quantity)
+                    if valeur:
+                        if key in fusion:
+                            fusion[key] += int(valeur)
+                        else:
+                            fusion[key] = int(valeur)
+
+                for k,(key,value) in enumerate(fusion.items()):
+                    quantity=value
                     query = select(Commande).where((Commande.facture_no == no) & (Commande.produit_name == key))
                     res3 = session.execute(query).scalar()
                     if not res3:
-                        quantity= re.findall(r'\d+',value[1])
-                        quantity = ''.join(quantity)
                         comm=Commande(facture_no=no,produit_name=key,no=k+1,qty=quantity)
                         session.add(comm)
                         session.commit()
