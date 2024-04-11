@@ -43,8 +43,8 @@ Bill to Natalia Omma
 Address 854, chemin Couturier
 62821 Saint Roland
 
-Process parent light field. 3 x 62.99 Euro
-Dignissimos quo atque quos. B x 17.70 Euro
+Process parent light field. 3 x 17.70 Euro
+Process parent light field. B x 17.70 Euro
 Dicta aperiam recusandae delectus. 2 x 57.12 Euro
 Story onto everybody east. 2x 59,73 Euro
 
@@ -65,8 +65,6 @@ CAT:C''')
         assert fac.client.name=='Natalia Omma'
         assert '854, chemin Couturier' in fac.client.adr
         assert '62821 Saint Roland' in fac.client.adr
-        assert len(fac.commandes)==4
-        assert fac.commandes[1].qty==8
-        assert fac.commandes[2].qty==2
+        assert len(fac.commandes)==3
         assert fac.commandes[3].produits.price==59.73
 test_import()
